@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>호계중학교 급식지도 조회</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+
+  :root {
+    --tiffany: #0ABAB5;
+    --tiffany-light: #7FDED9;
+    --tiffany-pale: #C4F0EE;
+    --tiffany-deep: #07807C;
+    --tiffany-bg: #E8F9F8;
+    --gold: #C9A84C;
+    --dark: #1A2B2B;
+    --mid: #3D5A5A;
+    --light-gray: #F4FBFB;
+    --border: #B2E0DE;
+    --white: #FFFFFF;
+    --danger: #E05C5C;
+    --success: #2EAD7A;
+    --warn: #E09A2E;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--light-gray);
+    color: var(--dark);
+    min-height: 100vh;
+  }
+
+  /* ── Hero Header ── */
+  .hero {
+    background: var(--dark);
+    color: white;
+    padding: 2.5rem 1.5rem 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(10,186,181,0.18) 0%, transparent 70%);
+  }
+  .hero-diamond {
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 200px; height: 200px;
+    border: 1px solid rgba(10,186,181,0.15);
+    transform: rotate(45deg);
+    border-radius: 20px;
+  }
+  .hero-diamond2 {
+    position: absolute;
+    bottom: 20px; left: -40px;
+    width: 120px; height: 120px;
+    border: 1px solid rgba(10,186,181,0.1);
+    transform: rotate(30deg);
+    border-radius: 12px;
+  }
+  .hero-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.6rem, 5vw, 2.4rem);
+    font-weight: 600;
+    color: var(--white);
+    letter-spacing: 3px;
+    position: relative;
+    z-index: 1;
+  }
+  .hero-title span { color: var(--tiffany); }
+  .hero-school {
+    font-size: 0.8rem;
+    color: var(--tiffany-light);
+    letter-spacing: 2px;
+    margin-top: 0.3rem;
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── Notice Banner ── */
+  .notice-banner {
+    background: rgba(10,186,181,0.08);
+    border-top: 1px solid rgba(10,186,181,0.2);
+    padding: 1.2rem 1.5rem;
+    position: relative;
+    z-index: 1;
+  }
+  .notice-grid {
+    max-width: 700px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  .notice-block {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(10,186,181,0.2);
+    border-radius: 10px;
+    padding: 0.9rem 1rem;
+  }
+  .notice-block-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--tiffany-light);
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+  }
+  .notice-block p {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.7);
+    line-height: 1.7;
+  }
+  .notice-block strong { color: var(--tiffany-light); }
+
+  /* ── Time display ── */
+  .time-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.3rem;
+  }
+  .time-badge {
+    background: var(--tiffany);
+    color: white;
+    padding: 0.15rem 0.5rem;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  /* ── Main Content ── */
+  .main {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* ── Search Box ── */
+  .search-card {
+    background: var(--white);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    padding: 1.8rem;
+    box-shadow: 0 4px 20px rgba(10,186,181,0.1);
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+  .search-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--mid);
+    letter-spacing: 1px;
+    margin-bottom: 1rem;
+    display: block;
+  }
+  .search-row {
+    display: flex;
+    gap: 0.75rem;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+  .search-input {
+    flex: 1;
+    padding: 0.8rem 1.2rem;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    font-size: 1rem;
+    font-family: 'Noto Sans KR', sans-serif;
+    color: var(--dark);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .search-input:focus {
+    border-color: var(--tiffany);
+    box-shadow: 0 0 0 3px rgba(10,186,181,0.15);
+  }
+  .search-btn {
+    padding: 0.8rem 1.5rem;
+    background: var(--tiffany);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  .search-btn:hover { background: var(--tiffany-deep); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(10,186,181,0.3); }
+
+  /* ── Result Card ── */
+  .result-card {
+    background: var(--white);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 12px rgba(10,186,181,0.08);
+    display: none;
+  }
+  .result-header {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 1.2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--tiffany-pale);
+  }
+  .result-avatar {
+    width: 44px; height: 44px;
+    background: var(--tiffany);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: white;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .result-name { font-size: 1.1rem; font-weight: 700; color: var(--dark); }
+  .result-count { font-size: 0.78rem; color: var(--mid); margin-top: 0.2rem; }
+
+  /* Duty Items */
+  .duty-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.9rem 1rem;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    margin-bottom: 0.6rem;
+    transition: all 0.2s;
+  }
+  .duty-item:hover { border-color: var(--tiffany); background: var(--tiffany-bg); }
+  .duty-item.grade1 { border-left: 3px solid var(--tiffany); }
+  .duty-item.grade23 { border-left: 3px solid var(--gold); }
+  .duty-date-block { min-width: 80px; }
+  .duty-date { font-size: 0.95rem; font-weight: 700; color: var(--dark); }
+  .duty-dow { font-size: 0.72rem; color: var(--mid); }
+  .duty-grade {
+    flex: 1;
+    font-size: 0.82rem;
+  }
+  .duty-role {
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+  }
+  .duty-role.grade1 { background: var(--tiffany-pale); color: var(--tiffany-deep); }
+  .duty-role.grade23 { background: #FFF3D6; color: #8B6A1A; }
+  .duty-confirmed { font-size: 0.68rem; color: var(--success); font-weight: 700; }
+  .duty-dday {
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.2rem 0.5rem;
+    border-radius: 8px;
+    white-space: nowrap;
+  }
+  .duty-dday.today { background: var(--tiffany); color: white; }
+  .duty-dday.soon { background: #FFF3D6; color: var(--warn); }
+  .duty-dday.past { color: #aaa; }
+  .duty-dday.future { color: var(--mid); }
+
+  .no-result {
+    text-align: center;
+    padding: 1.5rem;
+    color: var(--mid);
+    font-size: 0.9rem;
+  }
+
+  /* ── Calendar Section ── */
+  .cal-section {
+    background: var(--white);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    padding: 1.5rem;
+    box-shadow: 0 2px 12px rgba(10,186,181,0.08);
+    overflow: hidden;
+  }
+  .cal-section-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .cal-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .cal-nav button {
+    background: var(--tiffany-pale);
+    border: none;
+    border-radius: 6px;
+    padding: 0.3rem 0.7rem;
+    cursor: pointer;
+    color: var(--tiffany-deep);
+    font-weight: 700;
+    transition: background 0.2s;
+  }
+  .cal-nav button:hover { background: var(--tiffany-light); color: white; }
+  .cal-month-label {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--dark);
+    min-width: 120px;
+    text-align: center;
+  }
+
+  .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 3px;
+    width: 100%;
+    min-width: 0;
+  }
+  .cal-hdr {
+    text-align: center;
+    padding: 0.4rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--mid);
+  }
+  .cal-hdr.sun { color: #E05C5C; }
+  .cal-hdr.sat { color: var(--tiffany); }
+  .cal-cell {
+    min-height: 64px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.3rem;
+    background: var(--white);
+    font-size: 0.68rem;
+    transition: all 0.15s;
+    overflow: hidden;
+    min-width: 0;
+  }
+  .cal-cell.empty { background: transparent; border-color: transparent; }
+  .cal-cell.today-cell { border-color: var(--tiffany); background: var(--tiffany-bg); }
+  .cal-cell.has-mine { background: linear-gradient(135deg, #E8F9F8, #FFF); }
+  .cal-cell-date {
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-bottom: 2px;
+    color: var(--dark);
+  }
+  .cal-cell.sun-cell .cal-cell-date { color: #E05C5C; }
+  .cal-cell.sat-cell .cal-cell-date { color: var(--tiffany); }
+  .cal-pill {
+    font-size: 0.6rem;
+    padding: 1px 4px;
+    border-radius: 3px;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+  }
+  .cal-pill.g1 { background: var(--tiffany-pale); color: var(--tiffany-deep); }
+  .cal-pill.g23 { background: #FFF3D6; color: #8B6A1A; }
+  .cal-pill.mine { font-weight: 700; }
+
+  /* ── URL Config ── */
+  .config-bar {
+    background: var(--dark);
+    padding: 0.6rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+  }
+  .config-bar label { color: var(--tiffany-light); font-size: 0.72rem; font-weight: 600; white-space: nowrap; }
+  .config-bar input {
+    flex: 1;
+    min-width: 160px;
+    padding: 0.35rem 0.7rem;
+    border-radius: 6px;
+    border: 1.5px solid var(--mid);
+    background: rgba(255,255,255,0.08);
+    color: white;
+    font-size: 0.78rem;
+    outline: none;
+  }
+  .config-bar input:focus { border-color: var(--tiffany); }
+  .config-bar button {
+    background: var(--tiffany);
+    border: none;
+    border-radius: 6px;
+    padding: 0.35rem 0.8rem;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  /* ── Month selector tabs ── */
+  .month-tabs {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+  }
+  .month-tab {
+    padding: 0.4rem 0.9rem;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1.5px solid var(--border);
+    color: var(--mid);
+    background: var(--white);
+    transition: all 0.2s;
+  }
+  .month-tab:hover { border-color: var(--tiffany); color: var(--tiffany); }
+  .month-tab.active { background: var(--tiffany); color: white; border-color: var(--tiffany); }
+
+  /* ── Loading ── */
+  .loading {
+    text-align: center;
+    padding: 2rem;
+    color: var(--mid);
+    font-size: 0.85rem;
+  }
+  .spinner {
+    width: 28px; height: 28px;
+    border: 3px solid var(--tiffany-pale);
+    border-top-color: var(--tiffany);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 0.8rem;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Toast ── */
+  .toast {
+    position: fixed;
+    bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(10px);
+    background: var(--dark);
+    color: var(--tiffany-light);
+    padding: 0.7rem 1.4rem;
+    border-radius: 10px;
+    font-size: 0.82rem;
+    z-index: 999;
+    opacity: 0;
+    transition: all 0.3s;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    .notice-grid { grid-template-columns: 1fr; }
+    .search-row { flex-direction: column; }
+    .main { padding: 1rem 0.5rem; }
+    .cal-section { padding: 1rem 0.5rem; }
+    .cal-grid { gap: 2px; }
+    .cal-cell {
+      min-height: 44px;
+      padding: 0.2rem 0.15rem;
+      font-size: 0.6rem;
+    }
+    .cal-cell-date { font-size: 0.65rem; }
+    .cal-pill {
+      font-size: 0.52rem;
+      padding: 1px 2px;
+      margin-bottom: 1px;
+    }
+    .cal-hdr { font-size: 0.65rem; padding: 0.3rem 0.1rem; }
+    .search-card { padding: 1.2rem 1rem; }
+    #urlCard { padding: 1.2rem 1rem; }
+    #urlCard .search-input { font-size: 0.75rem; }
+  }
+
+  /* ── Divider ── */
+  .divider-line {
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--tiffany-light), transparent);
+    margin: 1.5rem 0;
+  }
+
+  /* ── Empty state ── */
+  .empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--mid);
+  }
+  .empty-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-thumb { background: var(--tiffany-light); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- Config Bar - URL은 숨겨진 입력창으로 관리 -->
+<div class="config-bar" id="configBar" style="display:none;">
+  <label>📡 Apps Script URL</label>
+  <input type="url" id="cfgUrl" placeholder="https://script.google.com/macros/s/..." />
+  <button onclick="saveUrl()">저장</button>
+  <button onclick="testConnection()" style="background:#3D5A5A;">연결 테스트</button>
+</div>
+<!-- URL 설정 토글 버튼 (우하단 고정) -->
+<button id="cfgToggle" onclick="toggleConfig()"
+  style="position:fixed;bottom:1rem;right:1rem;z-index:999;
+         background:#1A2B2B;color:#0ABAB5;border:1.5px solid #0ABAB5;
+         border-radius:50%;width:2.4rem;height:2.4rem;font-size:1.1rem;
+         cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.3);"
+  title="URL 설정">⚙️</button>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-diamond"></div>
+  <div class="hero-diamond2"></div>
+  <div class="hero-title">LUNCH <span>DUTY</span></div>
+  <div class="hero-school">호계중학교 · 급식지도 안내</div>
+
+  <!-- Notice -->
+  <div class="notice-banner">
+    <div class="notice-grid">
+      <div class="notice-block">
+        <div class="notice-block-title">⏰ 급식지도 시간</div>
+        <div class="time-row">
+          <span class="time-badge">1학년</span>
+          <p>12시 30분 ~</p>
+        </div>
+        <div class="time-row">
+          <span class="time-badge">2·3학년</span>
+          <p>11시 35분 ~</p>
+        </div>
+      </div>
+      <div class="notice-block">
+        <div class="notice-block-title">📍 위치 및 역할</div>
+        <p><strong>1학년 (1명)</strong> 급식실 입구, 순서 입장 지도</p>
+        <p style="margin-top:0.3rem;"><strong>2·3학년 (2명)</strong><br>
+        입구: 3학년→2학년 입장<br>
+        내부: 배식·착석 지도</p>
+      </div>
+    </div>
+    <p style="font-size:0.7rem;color:rgba(255,255,255,0.4);text-align:center;margin-top:0.8rem;">
+      ⚠️ 교체 필요시 학생안전복지부에 사전 연락 바랍니다
+    </p>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main">
+
+  <!-- URL 설정 카드 -->
+  <div class="search-card" id="urlCard" style="margin-bottom:1rem;">
+    <span class="search-label">⚙️ Apps Script URL 설정</span>
+    <div style="display:flex;gap:0.6rem;max-width:600px;margin:0 auto 0.8rem;">
+      <input
+        type="url"
+        id="cfgUrlMain"
+        class="search-input"
+        placeholder="https://script.google.com/macros/s/..."
+        style="font-size:0.82rem;"
+      />
+      <button class="search-btn" onclick="saveUrlMain()" style="white-space:nowrap;padding:0.8rem 1rem;">저장</button>
+      <button class="search-btn" onclick="testConnectionMain()" style="white-space:nowrap;padding:0.8rem 1rem;background:var(--tiffany-deep);">테스트</button>
+    </div>
+    <div id="urlStatus" style="font-size:0.78rem;color:var(--mid);text-align:center;">
+      현재 URL: <span id="urlDisplay" style="color:var(--tiffany-deep);word-break:break-all;"></span>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="search-card">
+    <span class="search-label">내 급식지도 날짜 확인</span>
+    <div class="search-row">
+      <input
+        type="text"
+        class="search-input"
+        id="searchInput"
+        placeholder="이름 입력 (예: 홍길동)"
+        onkeypress="if(event.key==='Enter') searchTeacher()"
+      />
+      <button class="search-btn" onclick="searchTeacher()">조회</button>
+    </div>
+  </div>
+
+  <!-- Result -->
+  <div class="result-card" id="resultCard">
+    <div class="result-header">
+      <div class="result-avatar" id="resultAvatar">?</div>
+      <div>
+        <div class="result-name" id="resultName"></div>
+        <div class="result-count" id="resultCount"></div>
+      </div>
+    </div>
+    <div id="resultBody"></div>
+  </div>
+
+  <div class="divider-line"></div>
+
+  <!-- Full Calendar -->
+  <div class="cal-section">
+    <div class="cal-section-title">
+      <span>📅 전체 배정 달력</span>
+      <div class="cal-nav">
+        <button onclick="calPrev()">◀</button>
+        <div class="cal-month-label" id="calMonthLabel"></div>
+        <button onclick="calNext()">▶</button>
+      </div>
+    </div>
+    <div id="calLoading" class="loading" style="display:none;">
+      <div class="spinner"></div>
+      데이터 불러오는 중...
+    </div>
+    <div class="cal-grid" id="calHeaders">
+      <div class="cal-hdr sun">일</div>
+      <div class="cal-hdr">월</div>
+      <div class="cal-hdr">화</div>
+      <div class="cal-hdr">수</div>
+      <div class="cal-hdr">목</div>
+      <div class="cal-hdr">금</div>
+      <div class="cal-hdr sat">토</div>
+    </div>
+    <div class="cal-grid" id="calGrid"></div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+let gasUrl = localStorage.getItem('lunchDutyUrl') || 'https://script.google.com/macros/s/AKfycbzPjwxr1M13r8WgNdNGcokhTZ83vyawyHTBYzsVl1vJZVz0PcdVSjYHPbHRFUf4sGpLNw/exec';
+let calYear = new Date().getFullYear();
+let calMonth = new Date().getMonth() + 1;
+let allData = {};          // {dateStr: assignment}
+let searchedTeacher = '';
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+window.onload = () => {
+  document.getElementById('cfgUrl').value = gasUrl;
+  document.getElementById('cfgUrlMain').value = gasUrl;
+  updateUrlDisplay();
+  renderCalMonthLabel();
+  if (gasUrl) {
+    fetchData().then(() => renderCalendar());
+  } else {
+    document.getElementById('configBar').style.display = 'flex';
+    renderCalendar();
+  }
+};
+
+function updateUrlDisplay() {
+  const el = document.getElementById('urlDisplay');
+  if (!el) return;
+  el.textContent = gasUrl
+    ? gasUrl.slice(0, 55) + '…'
+    : '미설정 (URL을 입력하고 저장하세요)';
+  el.style.color = gasUrl ? 'var(--tiffany-deep)' : 'var(--danger)';
+}
+
+function saveUrlMain() {
+  const val = document.getElementById('cfgUrlMain').value.trim();
+  if (!val) { showToast('URL을 입력해주세요'); return; }
+  gasUrl = val;
+  localStorage.setItem('lunchDutyUrl', gasUrl);
+  document.getElementById('cfgUrl').value = gasUrl;
+  updateUrlDisplay();
+  showToast('✅ URL 저장됨');
+  fetchData().then(() => renderCalendar());
+}
+
+async function testConnectionMain() {
+  const url = document.getElementById('cfgUrlMain').value.trim();
+  if (!url) { showToast('URL을 먼저 입력하세요'); return; }
+  showToast('연결 테스트 중...');
+  try {
+    const res = await fetch(`${url}?action=ping`, { redirect: 'follow' });
+    const text = await res.text();
+    const json = JSON.parse(text);
+    showToast('✅ 연결 성공! 저장 버튼을 누르세요.');
+  } catch(e) {
+    showToast('❌ 연결 실패: URL을 확인해주세요');
+  }
+}
+
+// ══════════════════════════════════════════
+// URL CONFIG
+// ══════════════════════════════════════════
+function saveUrl() {
+  gasUrl = document.getElementById('cfgUrl').value.trim();
+  localStorage.setItem('lunchDutyUrl', gasUrl);
+  showToast('URL 저장됨');
+  document.getElementById('configBar').style.display = 'none';
+  if (gasUrl) fetchData().then(() => renderCalendar());
+}
+
+async function testConnection() {
+  const url = document.getElementById('cfgUrl').value.trim();
+  if (!url) { showToast('URL을 먼저 입력하세요'); return; }
+  showToast('연결 테스트 중...');
+  try {
+    const res = await fetch(`${url}?action=ping`, { redirect: 'follow' });
+    const text = await res.text();
+    const json = JSON.parse(text);
+    showToast('✅ 연결 성공: ' + (json.message || JSON.stringify(json)));
+  } catch(e) {
+    showToast('❌ 연결 실패: ' + e.message);
+  }
+}
+
+function toggleConfig() {
+  const bar = document.getElementById('configBar');
+  bar.style.display = bar.style.display === 'none' ? 'flex' : 'none';
+}
+
+// ══════════════════════════════════════════
+// DATA FETCH
+// ══════════════════════════════════════════
+async function fetchData() {
+  if (!gasUrl) return;
+  document.getElementById('calLoading').style.display = 'block';
+  try {
+    const url = `${gasUrl}?action=get&year=${calYear}&month=${calMonth}`;
+    const res = await fetch(url, { redirect: 'follow' });
+    const text = await res.text();
+    let json;
+    try {
+      json = JSON.parse(text);
+    } catch(pe) {
+      throw new Error('응답 파싱 실패');
+    }
+    if (json.assignments && Object.keys(json.assignments).length > 0) {
+      Object.assign(allData, json.assignments);
+    }
+  } catch(e) {
+    showToast('데이터 로드 실패: ' + e.message);
+  } finally {
+    document.getElementById('calLoading').style.display = 'none';
+  }
+}
+
+// ══════════════════════════════════════════
+// SEARCH
+// ══════════════════════════════════════════
+function searchTeacher() {
+  const name = document.getElementById('searchInput').value.trim();
+  if (!name) { showToast('이름을 입력해주세요'); return; }
+  searchedTeacher = name;
+
+  // Find all assignments for this teacher
+  const myDuties = [];
+  Object.entries(allData).forEach(([dateStr, asgn]) => {
+    let role = null, grade = null;
+    if (asgn.grade1?.includes(name)) {
+      role = '급식실 입구'; grade = '1학년';
+    }
+    if (asgn.grade23) {
+      const found = asgn.grade23.find(t =>
+        typeof t === 'string' ? t === name : t.name === name
+      );
+      if (found) {
+        const r = typeof found === 'string' ? '' : found.role;
+        role = r ? `급식실 ${r}` : '2+3학년';
+        grade = '2+3학년';
+      }
+    }
+    if (role) myDuties.push({ dateStr, grade, role, confirmed: asgn.confirmed });
+  });
+  myDuties.sort((a,b) => a.dateStr.localeCompare(b.dateStr));
+
+  const card = document.getElementById('resultCard');
+  card.style.display = 'block';
+
+  const avatar = document.getElementById('resultAvatar');
+  avatar.textContent = name.charAt(name.length - 1);
+
+  document.getElementById('resultName').textContent = name + ' 선생님';
+
+  const g1cnt = myDuties.filter(d => d.grade === '1학년').length;
+  const g23cnt = myDuties.filter(d => d.grade === '2+3학년').length;
+  document.getElementById('resultCount').textContent =
+    `총 ${myDuties.length}회 (1학년 ${g1cnt}회 · 2+3학년 ${g23cnt}회)`;
+
+  if (myDuties.length === 0) {
+    document.getElementById('resultBody').innerHTML =
+      `<div class="no-result">배정된 급식지도 일정이 없습니다.</div>`;
+  } else {
+    document.getElementById('resultBody').innerHTML = myDuties.map(d => {
+      const date = new Date(d.dateStr);
+      const today = new Date(); today.setHours(0,0,0,0);
+      const diff = Math.round((date - today) / 86400000);
+      let ddayHtml = '';
+      if (diff === 0) ddayHtml = `<span class="duty-dday today">D-DAY</span>`;
+      else if (diff > 0 && diff <= 7) ddayHtml = `<span class="duty-dday soon">D-${diff}</span>`;
+      else if (diff > 0) ddayHtml = `<span class="duty-dday future">D-${diff}</span>`;
+      else ddayHtml = `<span class="duty-dday past">D+${Math.abs(diff)}</span>`;
+
+      const dowNames = ['일','월','화','수','목','금','토'];
+      const dow = dowNames[date.getDay()];
+      const isGrade1 = d.grade === '1학년';
+
+      return `<div class="duty-item ${isGrade1 ? 'grade1' : 'grade23'}">
+        <div class="duty-date-block">
+          <div class="duty-date">${d.dateStr.slice(5).replace('-','/')}</div>
+          <div class="duty-dow">${dow}요일</div>
+        </div>
+        <div class="duty-grade">
+          <div style="font-weight:600;font-size:0.85rem;">${d.grade} 급식지도</div>
+          <div style="font-size:0.75rem;color:var(--mid);">${d.role}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.3rem;">
+          <span class="duty-role ${isGrade1 ? 'grade1' : 'grade23'}">${isGrade1 ? '1학년' : '2+3학년'}</span>
+          ${d.confirmed ? '<span class="duty-confirmed">✓ 확정</span>' : ''}
+          ${ddayHtml}
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  renderCalendar(); // re-render to highlight my days
+}
+
+// ══════════════════════════════════════════
+// CALENDAR
+// ══════════════════════════════════════════
+function calPrev() {
+  calMonth--;
+  if (calMonth < 1) { calMonth = 12; calYear--; }
+  renderCalMonthLabel();
+  if (gasUrl) fetchData().then(() => renderCalendar());
+  else renderCalendar();
+}
+function calNext() {
+  calMonth++;
+  if (calMonth > 12) { calMonth = 1; calYear++; }
+  renderCalMonthLabel();
+  if (gasUrl) fetchData().then(() => renderCalendar());
+  else renderCalendar();
+}
+function renderCalMonthLabel() {
+  document.getElementById('calMonthLabel').textContent = `${calYear}.${String(calMonth).padStart(2,'0')}`;
+}
+
+function renderCalendar() {
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = '';
+  const year = calYear, month = calMonth;
+  const firstDay = new Date(year, month - 1, 1).getDay();
+  const daysInMonth = new Date(year, month, 0).getDate();
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  for (let i = 0; i < firstDay; i++) {
+    const el = document.createElement('div');
+    el.className = 'cal-cell empty';
+    grid.appendChild(el);
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const date = new Date(year, month - 1, d);
+    const dow = date.getDay();
+    const dateStr = `${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday = date.getTime() === today.getTime();
+    const asgn = allData[dateStr];
+
+    const cell = document.createElement('div');
+    cell.className = 'cal-cell';
+    if (dow === 0) cell.classList.add('sun-cell');
+    if (dow === 6) cell.classList.add('sat-cell');
+    if (isToday) cell.classList.add('today-cell');
+
+    let html = `<div class="cal-cell-date">${d}</div>`;
+
+    let hasMyDuty = false;
+    if (asgn) {
+      // Grade 1 teachers
+      if (asgn.grade1?.length > 0) {
+        asgn.grade1.forEach(name => {
+          const isMe = name === searchedTeacher;
+          if (isMe) hasMyDuty = true;
+          html += `<span class="cal-pill g1 ${isMe ? 'mine' : ''}">${isMe ? '★' : ''}${name}</span>`;
+        });
+      }
+      // Grade 23 teachers
+      if (asgn.grade23?.length > 0) {
+        asgn.grade23.forEach(t => {
+          const name = typeof t === 'string' ? t : t.name;
+          const role = typeof t === 'object' ? t.role : '';
+          const isMe = name === searchedTeacher;
+          if (isMe) hasMyDuty = true;
+          html += `<span class="cal-pill g23 ${isMe ? 'mine' : ''}">${isMe ? '★' : ''}${name}${role ? `(${role})` : ''}</span>`;
+        });
+      }
+    }
+
+    if (hasMyDuty) cell.classList.add('has-mine');
+    cell.innerHTML = html;
+    grid.appendChild(cell);
+  }
+}
+
+// ══════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
